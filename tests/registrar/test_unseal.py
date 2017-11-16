@@ -1,7 +1,7 @@
 
 import pytest
 
-from ens.registrar import InvalidBidHash
+from ensauction.registrar import InvalidBidHash
 
 
 @pytest.fixture
@@ -40,10 +40,10 @@ def test_reveal_nameprep(
     mocker.patch('web3.Web3.sha3', side_effect=fake_hash_hexout)
     unseal_registrar.reveal("ÖÖÖÖÖÖÖ.eth", value1, secret1, transact={'from': addr1})
     unseal_registrar.core.shaBid.assert_called_once_with(
-        fake_hash("ööööööö".encode()),
+        fake_hash_hexout("ööööööö".encode()),
         addr1,
         value1,
-        fake_hash(secret1.encode()),
+        fake_hash_hexout(secret1.encode()),
     )
 
 
@@ -52,7 +52,7 @@ def test_unseal_bid(
     mocker.patch('web3.Web3.sha3', side_effect=fake_hash_hexout)
     unseal_registrar.reveal(label1, value1, secret1, transact={'from': addr1})
     unseal_registrar.core.unsealBid.assert_called_once_with(
-        fake_hash(label1.encode()),
+        fake_hash_hexout(label1.encode()),
         value1,
-        fake_hash(secret1.encode()),
-        transact={'from': addr1, 'gas': 150000})
+        fake_hash_hexout(secret1.encode()),
+        transact={'from': addr1})

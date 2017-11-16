@@ -3,7 +3,7 @@ import pytest
 
 from web3.exceptions import StaleBlockchain
 
-from ens.registrar import Status
+from ensauction.registrar import Status
 
 
 def test_entries_passthrough(registrar, mocker, hash1, label1):

@@ -2,10 +2,11 @@
 import pytest
 from unittest.mock import Mock
 
+from ens import ENS
 from web3 import Web3
 from web3.providers.tester import EthereumTesterProvider
 
-from ens import ENS
+from ensauction import Registrar
 
 
 def mkhash(num, digits=40):
@@ -93,12 +94,14 @@ def ens(mocker):
 @pytest.fixture
 def registrar(ens, monkeypatch, addr9):
     monkeypatch.setattr(ens, 'owner', lambda namehash: addr9)
-    return ens.registrar
+    return Registrar(ens)
 
 
 @pytest.fixture
 def fake_hash_hexout():
-    def _fake_hash(tohash):
+    def _fake_hash(tohash=None, text=None):
+        if text:
+            tohash = text.encode('utf-8')
         assert isinstance(tohash, bytes)
         tohash = b'b' + tohash
         hash_bytes = b'HASH(%s)' % tohash
