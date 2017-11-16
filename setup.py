@@ -16,18 +16,18 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='ens',
+    name='ensauction',
 
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.6.1',
+    version='0.0.1',
 
-    description='Ethereum Name Service, made easy in Python',
+    description='Ethereum Name Service Auction, in Python',
     long_description=long_description,
 
     # The project's main homepage.
-    url='https://github.com/carver/ens.py',
+    url='https://github.com/carver/ensauction.py',
 
     # Author details
     author='Jason Carver',
@@ -62,7 +62,7 @@ setup(
     packages=find_packages(exclude=['tests', 'venv']),
 
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['pytz', 'web3>=3.16.1,<4'],
+    install_requires=['web3>=4.0.0-beta.1'],
 
     setup_requires=['setuptools-markdown'],
     long_description_markdown_filename='README.md',

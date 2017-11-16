@@ -6,7 +6,7 @@ from enum import IntEnum
 import pytz
 from web3 import Web3
 
-from ens import abis
+from ensauction import abis
 
 REGISTRAR_NAME = 'eth'
 
