@@ -4,7 +4,7 @@ from unittest.mock import Mock
 
 from ens import ENS
 from web3 import Web3
-from web3.providers.tester import EthereumTesterProvider
+from web3 import EthereumTesterProvider
 
 from ensauction import Registrar
 

@@ -62,7 +62,7 @@ setup(
     packages=find_packages(exclude=['tests', 'venv']),
 
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['web3>=4.0.0-beta.1'],
+    install_requires=['web3>=4.0.0'],
 
     setup_requires=['setuptools-markdown'],
     long_description_markdown_filename='README.md',
