@@ -1,9 +1,10 @@
 
-# Ethereum Name Service via Python
+# Bid on '.eth' ENS names with Python
 
 [![Join the chat at https://gitter.im/ens-py/Lobby](https://badges.gitter.im/ens-py/Lobby.svg)](https://gitter.im/ens-py/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Access the Ethereum Name Service using this python library. Note: **this is a work in progress**
+Access the Ethereum Name Service Auction using this python library.
+Note: **this is a work in progress**
 
 Using this library is not a way to skip learning how ENS works. If you are registering a name, a
 small misunderstanding can cause you to lose **all** your deposit.
@@ -23,7 +24,7 @@ If you supply the a domain with type `bytes`, it will be assumed to be UTF-8 enc
 ## Setup
 
 ```
-pip install ens
+pip install ensauction
 ```
 
 Any issues? See [Setup details](#setup-details)
@@ -32,118 +33,32 @@ Any issues? See [Setup details](#setup-details)
 
 All examples in Python 3
 
-### Name info
-
-#### Get address from name
-
-Default to {name}.eth:
-
-```
-from ens import ens
-
-
-# look up the hex representation of the address for a name
-
-eth_address = ens.address('jasoncarver.eth')
-
-assert eth_address == '0x5b2063246f2191f18f2675cedb8b28102e957458'
-
-
-# ens.py will assume you want a .eth name if you don't specify a full name
-
-assert ens.address('jasoncarver') == eth_address
-```
-
-#### Get name from address
-
-```
-domain = ens.name('0x5b2063246f2191f18f2675cedb8b28102e957458')
-
-
-# name() also accepts the bytes version of the address
-
-assert ens.name(b'[ c$o!\x91\xf1\x8f&u\xce\xdb\x8b(\x10.\x95tX') == domain
-
-
-# confirm that the name resolves back to the address that you looked up:
-
-assert ens.address(domain) == '0x5b2063246f2191f18f2675cedb8b28102e957458'
-```
-
-#### Get owner of name
-
-```
-eth_address = ens.owner('exchange.eth')
-```
-
-### Set up your name
-
-#### Point your name to your address
-
-Do you want to set up your name so that `ens.address()` will show the address it points to?
-
-```
-ens.setup_address('jasoncarver.eth', '0x5b2063246f2191f18f2675cedb8b28102e957458')
-```
-You must already be the owner of the domain (or its parent).
-
-In the common case where you want to point the name to the owning address, you can skip the address
-```
-ens.setup_address('jasoncarver.eth')
-```
-
-You can claim arbitrarily deep subdomains. *Gas costs scale up with the number of subdomains!*
-```
-ens.setup_address('supreme.executive.power.derives.from.a.mandate.from.the.masses.jasoncarver.eth')
-```
-
-Wait for the transaction to be mined, then:
-```
-assert ens.address('supreme.executive.power.derives.from.a.mandate.from.the.masses.jasoncarver.eth') == \
-    '0x5b2063246f2191f18f2675cedb8b28102e957458'
-```
-
-#### Point your address to your name
-
-Do you want to set up your address so that `ens.name()` will show the name that points to it?
-
-This is like Caller ID. It enables you and others to take an account and determine what name points
-to it. Sometimes this is referred to as "reverse" resolution.
-
-```
-ens.setup_name('jasoncarver.eth', '0x5b2063246f2191f18f2675cedb8b28102e957458')
-```
-
-If you don't supply the address, `setup_name` will assume you want the address returned by
-`ens.address(name)`.
-```
-ens.setup_name('jasoncarver.eth')
-```
-If the name doesn't already point to an address, `ens.setup_name` will call `ens.setup_address` for
-you.
-
-Wait for the transaction to be mined, then:
-```
-assert ens.name('0x5b2063246f2191f18f2675cedb8b28102e957458') == 'jasoncarver.eth'
-```
-
 ### Auctions for names ending in .eth
 
 #### Get auction status
 
 Example with domain 'payment.eth':
 
+```py
+from ensauction.auto import ethnames
+from ensauction.registrar import Status
+
+status = ethnames.status('payment.eth')
 ```
-from ens.registrar import Status
 
+If you get an error here, like:
+> UnhandledRequest: No providers responded to the RPC request:\
+ method:eth_getBlockByNumber\
+ params:['latest', False]
+ 
+Then you are not connected to your node.
+See below [how to manually connect to your node](#optionally-a-custom-web3-provider).
 
-status = ens.registrar.status('payment')
+Otherwise, continue...
 
-
+```py
 # if you forget to strip out .eth, ens.py will do it for you
-
-assert ens.registrar.status('payment.eth') == status
-
+assert ethnames.status('payment') == status
 
 # these are the possible statuses
 
@@ -164,29 +79,29 @@ assert Status.Owned == 2
 
 #### Start auctions
 
-```
+```py
 # start one auction (which tips people off that you're interested)
 
-ens.registrar.start('you_saw_him_repressin_me_didnt_ya')
+ethnames.start('you_saw_him_repressin_me_didnt_ya')
 
 
 # start many auctions (which provides a bit of cover)
 
-ens.registrar.start(['exchange', 'tickets', 'payment', 'trading', 'registry'])
+ethnames.start(['exchange', 'tickets', 'payment', 'trading', 'registry'])
 ```
 
 #### Bid on auction
 
 Bid on a 'trading.eth' with 5211 ETH, and secret "I promise I will not forget my secret":
 
-```
-from web3utils import web3
+```py
+from web3.auto import w3
 
-ens.registrar.bid(
+ethnames.bid(
       'trading',
-      web3.toWei('5211', 'ether'),
+      Web3.toWei('5211', 'ether'),
       "I promise I will not forget my secret",
-      transact={'from': web3.eth.accounts[0]}
+      transact={'from': w3.eth.accounts[0]}
       )
 ```
 (if you want to "mask" your bid, set a higher value in the transact dict)
@@ -199,12 +114,12 @@ Otherwise you will lose the full deposit.
 Example of revealing your bid on 'registry.eth' with 0.01 ETH, and secret
 "For real, though: losing your secret means losing ether":
 
-```
-ens.registrar.reveal(
+```py
+ethnames.reveal(
       'registry',
-      web3.toWei('0.01', 'ether'),
+      Web3.toWei('0.01', 'ether'),
       "For real, though: losing your secret means losing ether",
-      transact={'from': web3.eth.accounts[0]}
+      transact={'from': w3.eth.accounts[0]}
       )
 ```
 
@@ -212,8 +127,8 @@ ens.registrar.reveal(
 
 aka "Finalize" auction, which makes you the owner in ENS.
 
-```
-ens.registrar.finalize('gambling')
+```py
+ethnames.finalize('gambling')
 ```
 
 #### Get detailed information on an auction
@@ -222,36 +137,37 @@ Find out the owner of the auction Deed --
 see [docs on the difference](http://docs.ens.domains/en/latest/userguide.html#managing-ownership)
 between owning the name and the deed
 
-```
-deed = ens.registrar.deed('ethfinex')
+```py
+deed = ethnames.deed('ethfinex')
 
-assert deed.owner() == '0x9a02ed4ca9ad55b75ff9a05debb36d5eb382e184'
+assert deed.owner() == '0x9A02ed4Ca9AD55b75fF9A05DeBb36D5eb382E184'
 ```
 
 When was the auction completed? (a timezone-aware datetime object)
 
-```
-close_datetime = ens.registrar.close_at('ethfinex')
+```py
+close_datetime = ethnames.close_at('ethfinex')
 
 assert str(close_datetime) == '2017-06-05 08:10:03+00:00'
 ```
 
 How much is held on deposit?
 
-```
+```py
 from decimal import Decimal
+from web3 import Web3
 
-deposit = ens.registrar.deposit('ethfinex')
+deposit = ethnames.deposit('ethfinex')
 
-assert web3.fromWei(deposit, 'ether') == Decimal('0.01')
+assert Web3.fromWei(deposit, 'ether') == Decimal('0.01')
 ```
 
 What was the highest bid?
 
-```
-top_bid = ens.registrar.top_bid('ethfinex')
+```py
+top_bid = ethnames.top_bid('ethfinex')
 
-assert web3.fromWei(top_bid, 'ether') == Decimal('201709.02')
+assert Web3.fromWei(top_bid, 'ether') == Decimal('201709.02')
 ```
 
 ## Setup details
@@ -268,32 +184,36 @@ fi
 
 ### Now, with Python 3
 
-In your shell: `pip install ens`
+In your shell: `pip install ensauction`
 
-*ens.py* requires an up-to-date Ethereum blockchain, preferably local. If your setup isn't working,
+*ensauction.py* requires an up-to-date Ethereum blockchain, preferably local.
+If your setup isn't working,
 try running `geth --fast` until it's fully-synced. I highly recommend using the default IPC
 communication method, for speed and security.
 
-### "No matching distribution found for ens"
+### "No matching distribution found for ensauction"
 
 If you are seeing something like:
 ```
-Collecting ens
-  Could not find a version that satisfies the requirement ens (from versions: )
-No matching distribution found for ens
+Collecting ensauction
+  Could not find a version that satisfies the requirement ensauction (from versions: )
+No matching distribution found for ensauction
 ```
 
-Then retry the first Setup section, to make sure you're in Python 3
+It is most likely that you are in Python 2.
+Retry the first Setup section, to make sure you're in Python 3
 
-### Optionally, a custom web3 provider
+### Use a custom web3 provider
 
 In Python:
 
 ```
+from ensauction.registrar import Registrar
 from ens import ENS
 from web3 import IPCProvider 
 
-ens = ENS(IPCProvider('/your/custom/ipc/path'))
+ns = ENS(IPCProvider('/your/custom/ipc/path'))
+reg = Registrar(ns)
 ```
 
 
@@ -301,8 +221,8 @@ ens = ENS(IPCProvider('/your/custom/ipc/path'))
 ## Developer Setup
 
 ```
-git clone git@github.com:carver/ens.py.git
-cd ens.py/
+git clone git@github.com:carver/ensauction.py.git
+cd ensauction.py/
 
 python3 -m venv venv
 . venv/bin/activate
@@ -316,14 +236,14 @@ pip install -r requirements-dev.txt
 Re-run flake on file changes:
 
 ```
-$ when-changed -s -1 -r ens/ tests/ -c "clear; echo; echo \"running flake - $(date)\"; warn()
+$ when-changed -s -1 -r ensauction/ tests/ -c "clear; echo; echo \"running flake - $(date)\"; warn()
 {
-notify-send -t 5000 'Flake8 failure ⚠⚠⚠⚠⚠' 'flake8 on ens.py failed'
+notify-send -t 5000 'Flake8 failure ⚠⚠⚠⚠⚠' 'flake8 on ensauction.py failed'
 }
-if ! git diff | flake8 --diff | grep "\.py"; then if ! flake8 ens/ tests/; then warn; fi else warn; fi; echo done"
+if ! git diff | flake8 --diff | grep "\.py"; then if ! flake8 ensauction/ tests/; then warn; fi else warn; fi; echo done"
 ```
 
-### Why does ens.py require python 3?
+### Why does ensauction.py require python 3?
 
 *Short version*
 
@@ -343,7 +263,7 @@ calculating the hash of:
 4. the bytes generated by encoding a string using utf-16: `'⁛④Ⅿ\uf191⚏칵诛ဨ键塴'`
 
 Python 3 doesn't let you ignore a lot of these details. That's good, because precision in dealing
-with the EVM is critical. Ether is at stake.
+with the EVM is critical.
 
 If you are resistant -- I get it, I've been there. It is not intuitive for most people. But it's
 seriously worth it to [learn about
