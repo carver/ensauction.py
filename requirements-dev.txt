@@ -1,7 +1,0 @@
-ipython
-pytest
-pytest-mock
-flake8>3,<4
-pytest-watch
-when-changed>=0.3.0
-web3[tester]<5

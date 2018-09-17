@@ -6,14 +6,30 @@ https://github.com/pypa/sampleproject
 """
 
 from setuptools import setup, find_packages
-from io import open
-from os import path
 
-here = path.abspath(path.dirname(__file__))
+extras_require = {
+    'test': [
+        "pytest>=3.8.0,<4",
+        "pytest-mock",
+        "web3[tester]>=4,<5",
+    ],
+    'lint': [
+        "flake8>3,<4",
+    ],
+    'dev': [
+        "bumpversion>=0.5.3,<1",
+        "pytest-xdist",
+        "pytest-watch>=4.1.0,<5",
+        "wheel",
+        "ipython",
+    ],
+}
 
-# Get the long description from the README file
-with open(path.join(here, 'README.md'), encoding='utf-8') as f:
-    long_description = f.read()
+extras_require['dev'] = (
+    extras_require['dev'] +
+    extras_require['test'] +
+    extras_require['lint']
+)
 
 setup(
     name='ensauction',
@@ -21,10 +37,9 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.0.1',
+    version='0.1.0-alpha.0',
 
     description='Ethereum Name Service Auction, in Python',
-    long_description=long_description,
 
     # The project's main homepage.
     url='https://github.com/carver/ensauction.py',
@@ -50,6 +65,8 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
     ],
 
     # What does your project relate to?
@@ -64,6 +81,7 @@ setup(
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=['web3>=4.0.0'],
 
+    extras_require=extras_require,
     setup_requires=['setuptools-markdown'],
     long_description_markdown_filename='README.md',
 )
