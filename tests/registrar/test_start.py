@@ -17,66 +17,67 @@ def assert_equal_start_auction_hashes(startAuctions, expected_hashes):
         # do not waste any gas on a transaction with 0 labels
         assert startAuctions.call_count == 0
 
+TEST_LABEL_HASHES = [
+    (
+        ['anarcho.eth', 'syndicalist.eth', 'commune.eth'],
+        [
+            '0xd7e41683cbd2d80689afca81da0d105b98242cd5edf8b0b3067c3d50b06cbbd5',
+            '0x2908cf6845d47a184831d7b3b68de9ecd230f430fbce21ac8a03e461ee362d6b',
+            '0xe181468995e4c2f8ef00f4db5940729b03f41f7604d6f2dadee191cf4e067fc3',
+        ],
+    ),
+    (
+        ['anarcho', 'syndicalist', 'commune'],
+        [
+            '0xd7e41683cbd2d80689afca81da0d105b98242cd5edf8b0b3067c3d50b06cbbd5',
+            '0x2908cf6845d47a184831d7b3b68de9ecd230f430fbce21ac8a03e461ee362d6b',
+            '0xe181468995e4c2f8ef00f4db5940729b03f41f7604d6f2dadee191cf4e067fc3',
+        ],
+    ),
+    (
+        ['ANARCHO', 'SYNDICALIST', 'COMMUNE'],
+        [
+            '0xd7e41683cbd2d80689afca81da0d105b98242cd5edf8b0b3067c3d50b06cbbd5',
+            '0x2908cf6845d47a184831d7b3b68de9ecd230f430fbce21ac8a03e461ee362d6b',
+            '0xe181468995e4c2f8ef00f4db5940729b03f41f7604d6f2dadee191cf4e067fc3',
+        ],
+    ),
+    (
+        [b'anarcho', b'syndicalist', b'commune'],
+        [
+            '0xd7e41683cbd2d80689afca81da0d105b98242cd5edf8b0b3067c3d50b06cbbd5',
+            '0x2908cf6845d47a184831d7b3b68de9ecd230f430fbce21ac8a03e461ee362d6b',
+            '0xe181468995e4c2f8ef00f4db5940729b03f41f7604d6f2dadee191cf4e067fc3',
+        ],
+    ),
+    (
+        'anarcho',
+        [
+            '0xd7e41683cbd2d80689afca81da0d105b98242cd5edf8b0b3067c3d50b06cbbd5',
+        ],
+    ),
+    (
+        'ANARCHO',
+        [
+            '0xd7e41683cbd2d80689afca81da0d105b98242cd5edf8b0b3067c3d50b06cbbd5',
+        ],
+    ),
+    (
+        b'ANARCHO',
+        [
+            '0xd7e41683cbd2d80689afca81da0d105b98242cd5edf8b0b3067c3d50b06cbbd5',
+        ],
+    ),
+    (
+        [],
+        [],
+    ),
+]
 
-@pytest.mark.skip(reason="blocking on contract test integration")
+
 @pytest.mark.parametrize(
     'labels, expected_hashes',
-    [
-        (
-            ['anarcho.eth', 'syndicalist.eth', 'commune.eth'],
-            [
-                '0xd7e41683cbd2d80689afca81da0d105b98242cd5edf8b0b3067c3d50b06cbbd5',
-                '0x2908cf6845d47a184831d7b3b68de9ecd230f430fbce21ac8a03e461ee362d6b',
-                '0xe181468995e4c2f8ef00f4db5940729b03f41f7604d6f2dadee191cf4e067fc3',
-            ],
-        ),
-        (
-            ['anarcho', 'syndicalist', 'commune'],
-            [
-                '0xd7e41683cbd2d80689afca81da0d105b98242cd5edf8b0b3067c3d50b06cbbd5',
-                '0x2908cf6845d47a184831d7b3b68de9ecd230f430fbce21ac8a03e461ee362d6b',
-                '0xe181468995e4c2f8ef00f4db5940729b03f41f7604d6f2dadee191cf4e067fc3',
-            ],
-        ),
-        (
-            ['ANARCHO', 'SYNDICALIST', 'COMMUNE'],
-            [
-                '0xd7e41683cbd2d80689afca81da0d105b98242cd5edf8b0b3067c3d50b06cbbd5',
-                '0x2908cf6845d47a184831d7b3b68de9ecd230f430fbce21ac8a03e461ee362d6b',
-                '0xe181468995e4c2f8ef00f4db5940729b03f41f7604d6f2dadee191cf4e067fc3',
-            ],
-        ),
-        (
-            [b'anarcho', b'syndicalist', b'commune'],
-            [
-                '0xd7e41683cbd2d80689afca81da0d105b98242cd5edf8b0b3067c3d50b06cbbd5',
-                '0x2908cf6845d47a184831d7b3b68de9ecd230f430fbce21ac8a03e461ee362d6b',
-                '0xe181468995e4c2f8ef00f4db5940729b03f41f7604d6f2dadee191cf4e067fc3',
-            ],
-        ),
-        (
-            'anarcho',
-            [
-                '0xd7e41683cbd2d80689afca81da0d105b98242cd5edf8b0b3067c3d50b06cbbd5',
-            ],
-        ),
-        (
-            'ANARCHO',
-            [
-                '0xd7e41683cbd2d80689afca81da0d105b98242cd5edf8b0b3067c3d50b06cbbd5',
-            ],
-        ),
-        (
-            b'ANARCHO',
-            [
-                '0xd7e41683cbd2d80689afca81da0d105b98242cd5edf8b0b3067c3d50b06cbbd5',
-            ],
-        ),
-        (
-            [],
-            [],
-        ),
-    ],
+    TEST_LABEL_HASHES,
 )
 def test_start_auctions(registrar, mocker, labels, expected_hashes):
     startAuctions = mocker.patch.object(registrar.core, 'startAuctions')
@@ -87,62 +88,7 @@ def test_start_auctions(registrar, mocker, labels, expected_hashes):
 @pytest.mark.skip(reason="blocking on contract test integration")
 @pytest.mark.parametrize(
     'labels, expected_hashes',
-    [
-        (
-            ['anarcho.eth', 'syndicalist.eth', 'commune.eth'],
-            [
-                '0xd7e41683cbd2d80689afca81da0d105b98242cd5edf8b0b3067c3d50b06cbbd5',
-                '0x2908cf6845d47a184831d7b3b68de9ecd230f430fbce21ac8a03e461ee362d6b',
-                '0xe181468995e4c2f8ef00f4db5940729b03f41f7604d6f2dadee191cf4e067fc3',
-            ],
-        ),
-        (
-            ['anarcho', 'syndicalist', 'commune'],
-            [
-                '0xd7e41683cbd2d80689afca81da0d105b98242cd5edf8b0b3067c3d50b06cbbd5',
-                '0x2908cf6845d47a184831d7b3b68de9ecd230f430fbce21ac8a03e461ee362d6b',
-                '0xe181468995e4c2f8ef00f4db5940729b03f41f7604d6f2dadee191cf4e067fc3',
-            ],
-        ),
-        (
-            ['ANARCHO', 'SYNDICALIST', 'COMMUNE'],
-            [
-                '0xd7e41683cbd2d80689afca81da0d105b98242cd5edf8b0b3067c3d50b06cbbd5',
-                '0x2908cf6845d47a184831d7b3b68de9ecd230f430fbce21ac8a03e461ee362d6b',
-                '0xe181468995e4c2f8ef00f4db5940729b03f41f7604d6f2dadee191cf4e067fc3',
-            ],
-        ),
-        (
-            [b'anarcho', b'syndicalist', b'commune'],
-            [
-                '0xd7e41683cbd2d80689afca81da0d105b98242cd5edf8b0b3067c3d50b06cbbd5',
-                '0x2908cf6845d47a184831d7b3b68de9ecd230f430fbce21ac8a03e461ee362d6b',
-                '0xe181468995e4c2f8ef00f4db5940729b03f41f7604d6f2dadee191cf4e067fc3',
-            ],
-        ),
-        (
-            'anarcho',
-            [
-                '0xd7e41683cbd2d80689afca81da0d105b98242cd5edf8b0b3067c3d50b06cbbd5',
-            ],
-        ),
-        (
-            'ANARCHO',
-            [
-                '0xd7e41683cbd2d80689afca81da0d105b98242cd5edf8b0b3067c3d50b06cbbd5',
-            ],
-        ),
-        (
-            b'ANARCHO',
-            [
-                '0xd7e41683cbd2d80689afca81da0d105b98242cd5edf8b0b3067c3d50b06cbbd5',
-            ],
-        ),
-        (
-            [],
-            [],
-        ),
-    ],
+    TEST_LABEL_HASHES,
 )
 def test_start_auctions_integrated(registrar, labels, expected_hashes):
     def assert_label_state(_labels, _expected_hashes, state):
